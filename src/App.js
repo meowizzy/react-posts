@@ -1,51 +1,61 @@
-import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { usePosts } from "./hooks/useHooks";
+import { PostService } from "./API/PostService";
 import PostList from './components/PostList';
+import PostForm from "./components/PostForm";
+import PostFilter from "./components/PostFilter/PostFilter";
+import Modal from "./components/Modal";
 import Button from './components/UI/button/Button';
-import Input from './components/UI/input/Input';
 
 import './styles/App.scss';
 
 function App() {
 
-  const [posts, setPosts] = useState([
-    {id: 1, title: "JavaScript", body: "Description"},
-    {id: 2, title: "JavaScript", body: "Description"},
-    {id: 3, title: "JavaScript", body: "Description"},
-    {id: 4, title: "JavaScript", body: "Description"},
-    {id: 5, title: "JavaScript", body: "Description"}
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [filter, setFilter] = useState({ sort: '', query: '' });
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
+  useEffect(() => {
+    getPosts();
+  }, []);
 
-  const addNewPost = event => {
-    event.preventDefault();
-    
-    const newPost = {
-      id: Date.now(),
-      title: title,
-      body: desc
-    };
+  async function getPosts() {
+    const posts = await PostService.getAllPosts();
+    setPosts(posts);
+  }
 
-    if (title && desc) {
-      setPosts([...posts, newPost]);
-    }
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
 
-    setTitle('');
-    setDesc('');
+  const createPost = newPost => {
+    setPosts([...posts, newPost]);
+    setModalVisible(false);
   };
+
+  const removePost = id => {
+    const newPosts = posts.filter(post => post.id !== id);
+
+    setPosts(newPosts);
+  };
+
 
   return (
     <div className="App">
-      <form>
-        <Input type="text" placeholder="Название поста" value={title} onChange={e => setTitle(e.target.value)}/>
-        <Input type="text" placeholder="Описание поста" value={desc} onChange={e => setDesc(e.target.value)}/>
-        <Button onClick={addNewPost}>Создать пост</Button>
-      </form>
-      <PostList posts={posts} title="Список постов"/>
+      <Button onClick={() => setModalVisible(true)}>
+        Добавить пост
+      </Button>
+      <Modal visible={modalVisible} setVisible={setModalVisible}>
+        <PostForm create={createPost}/>
+      </Modal>
+      <hr style={{margin: '15px 0'}}/>
+      <PostFilter filter={filter} setFilter={setFilter}/>
+      {
+        posts.length 
+        ? <PostList posts={sortedAndSearchedPosts} removePost={removePost} title="Список постов"/> 
+        : <h1 style={{textAlign: 'center'}}>Загрузка...</h1>
+      }
+      
     </div>
-  );
+  )
 }
 
 export default App;

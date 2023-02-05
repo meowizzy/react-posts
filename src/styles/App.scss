@@ -7,6 +7,7 @@
 .App {
     max-width: 1280px;
     margin: 0 auto;
+    padding: 100px 0;
 }
 
 .post-list {
@@ -16,4 +17,26 @@
 
 body {
     font-family: sans-serif;
+}
+
+.post-enter {
+    transform: translateX(-200px);
+    opacity: 0;
+    transition: .3s ease-in;
+}
+
+.post-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: .3s ease-in;
+}
+
+.post-exit {
+    opacity: 1;
+}
+
+.post-exit-active {
+    transform: translateX(-200px);
+    opacity: 0;
+    transition: .3s ease-in;
 }

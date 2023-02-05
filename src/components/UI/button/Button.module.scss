@@ -6,4 +6,9 @@
     border: 1px solid teal;
     cursor: pointer;
     outline: none;
+    transition: .3s;
+    &:hover {
+        background-color: teal;
+        color: #fff;
+    }
 }
